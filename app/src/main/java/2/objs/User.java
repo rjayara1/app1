@@ -5,6 +5,8 @@ import java.net.*;
 import android.net.*;
 
 
+import com.example.rajesh.app1.MyDBHandler;
+
 import java.util.Comparator;
 import java.util.concurrent.PriorityBlockingQueue;
 
@@ -40,13 +42,15 @@ public class User implements Comparable<User> {
     }
 
     public User(){
-
+        friends = Collections.synchronizedSortedSet(new TreeSet<User>());
+        MemberOf = Collections.synchronizedSortedSet(new TreeSet<Group>());
 
     }
 
     public void setID(int ID) {
         this.ID = ID;
     }
+
 
     public int getID() {
         return ID;

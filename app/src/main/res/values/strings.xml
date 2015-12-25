@@ -21,6 +21,7 @@
     <string name="title_activity_new_event">NewEvent</string>
 
     <string name="Create">Create!</string>
+    <string name="title_activity_group">GroupActivity</string>
 
 
 </resources>

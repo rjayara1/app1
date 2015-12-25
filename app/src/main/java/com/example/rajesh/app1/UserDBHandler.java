@@ -1,23 +1,13 @@
 package com.example.rajesh.app1;
 
-import android.app.Activity;
-import android.content.Intent;
-import android.os.Bundle;
+import android.content.ContentValues;
+import android.database.sqlite.SQLiteOpenHelper;
+
+import android.content.Context;
+import android.database.Cursor;
 import android.database.sqlite.SQLiteDatabase;
 import android.database.sqlite.SQLiteOpenHelper;
-import android.content.Context;
-import android.content.ContentValues;
-import android.database.Cursor;
-import android.support.design.widget.FloatingActionButton;
-import android.support.design.widget.Snackbar;
-import android.support.v7.app.AppCompatActivity;
-import android.support.v7.widget.Toolbar;
-import android.util.Log;
-import android.view.View;
 
-import java.sql.Date;
-import java.text.DateFormat;
-import java.text.ParseException;
 import java.util.Random;
 
 import objs.Event;
@@ -25,14 +15,11 @@ import objs.Group;
 import objs.Location;
 import objs.User;
 
-/**
- * Created by Rajesh on 12/22/2015.
- */
-public class MyDBHandler extends SQLiteOpenHelper{
 
-   // private static final
-    private static final int DATABASE_VERSION = 3;//1;
-    private static final String DATABASE_NAME = "AppDB.db";
+public class UserDBHandler extends SQLiteOpenHelper {
+
+    private static final int DATABASE_VERSION = 3; //TODO: figure out DB versions
+    private static final String DATABASE_NAME = "AppDB.db"; //All tables are in the same DB
 
     //Info for Login Database
     private static final String TABLE_CREDENTIALS = "Credentials";
@@ -40,23 +27,18 @@ public class MyDBHandler extends SQLiteOpenHelper{
     public static final String COLUMN_USERNAME = "_username";
     public static final String COLUMN_PASSWORD = "_password";
 
-    //Info for Event Database
-    private static final String TABLE_EVENTS = "Events";
+    //Info for Individual Group Event Tables
+    private static final String TABLE_USER_EVENTS = "UserEvents";
     public static final String COLUMN_EVENTID = "_id";
     public static final String COLUMN_LOCATION = "_location";
     public static final String COLUMN_TIME = "_time";
     public static final String COLUMN_OWNER = "_owner";
 
 
-    //Info for Group Database
-    private static final String TABLE_GROUPS = "Groups";
-    public static final String COLUMN_GROUPID = "_id";
-    public static final String COLUMN_GROUPNAME = "_name";
-    public static final String COLUMN_MEMBERS = "_members";
 
 
-    public MyDBHandler(Context context, String name,
-                       SQLiteDatabase.CursorFactory factory, int version) {
+    public UserDBHandler(Context context, String name,
+                          SQLiteDatabase.CursorFactory factory, int version) {
         super(context, DATABASE_NAME, factory, DATABASE_VERSION);
     }
 
@@ -65,43 +47,68 @@ public class MyDBHandler extends SQLiteOpenHelper{
     @Override
     public void onCreate(SQLiteDatabase db) {
 
-            String CREATE_CREDENTIALS_TABLE = "CREATE TABLE " +
-                    TABLE_CREDENTIALS + "("
-                    + COLUMN_ID + " INTEGER PRIMARY KEY," + COLUMN_USERNAME
-                    + " TEXT," + COLUMN_PASSWORD + " TEXT" + ")";
 
-            String CREATE_EVENTS_TABLE = "CREATE TABLE " +
-                TABLE_EVENTS + "("
-                + COLUMN_EVENTID + " INTEGER PRIMARY KEY," + COLUMN_LOCATION
-                + " TEXT," + COLUMN_TIME + " TEXT," + COLUMN_OWNER + " Integer" + ")";
+        String CREATE_CREDENTIALS_TABLE = "CREATE TABLE " +
+                TABLE_CREDENTIALS + "("
+                + COLUMN_ID + " INTEGER PRIMARY KEY," + COLUMN_USERNAME
+                + " TEXT," + COLUMN_PASSWORD + " TEXT" + ")";
+        db.execSQL(CREATE_CREDENTIALS_TABLE);
 
+        User[] users = this.getUsers();
 
 
-            db.execSQL(CREATE_CREDENTIALS_TABLE);
-            db.execSQL(CREATE_EVENTS_TABLE);
-
+        for (int i = 0; i <users.length; i++){
+            if (users[i]!= null) {
+                String CREATE_USER_EVENTS_TABLE = "CREATE TABLE " +
+                        TABLE_USER_EVENTS  + users[i].getID() + "("
+                        + COLUMN_EVENTID + " INTEGER PRIMARY KEY," + COLUMN_LOCATION
+                        + " TEXT," + COLUMN_TIME + " TEXT," + COLUMN_OWNER + " Integer" + ")";
+                db.execSQL(CREATE_USER_EVENTS_TABLE);
+            }
+        }
     }
 
     @Override
     public void onUpgrade(SQLiteDatabase db, int oldVersion,
                           int newVersion) {
+        db.execSQL("DROP TABLE IF EXISTS " + TABLE_CREDENTIALS);
+        onCreate(db);
+    }
 
-            db.execSQL("DROP TABLE IF EXISTS " + TABLE_CREDENTIALS);
-            db.execSQL("DROP TABLE IF EXISTS " + TABLE_EVENTS);
-            onCreate(db);
+
+    public User validate(String Username,String Password) {
+
+        String query = "Select * FROM " + TABLE_CREDENTIALS + " WHERE " + COLUMN_USERNAME +
+                " =  \"" + Username + "\"" + " AND " + COLUMN_PASSWORD + " = \"" + Password + "\"";
+        SQLiteDatabase db = this.getWritableDatabase();
+        Cursor cursor = db.rawQuery(query, null);
+        User user = new User();
+
+        if (cursor.moveToFirst()) {
+            cursor.moveToFirst();
+            user.setID(Integer.parseInt(cursor.getString(0)));
+            user.setUsername(cursor.getString(1));
+            user.setPassword(cursor.getString(2));
+            cursor.close();
+        } else {
+            user = null;
+        }
+        db.close();
+        return user;
+
     }
 
     public void addUser(User U) {
-            ContentValues values = new ContentValues();
-            Random randomGenerator = new Random();
-            int randID = randomGenerator.nextInt(10000);
-            values.put(COLUMN_ID, randID);
-            values.put(COLUMN_USERNAME, U.getUsername());
-            values.put(COLUMN_PASSWORD, U.getPassword());
+        ContentValues values = new ContentValues();
+        Random randomGenerator = new Random();
+        int randID = randomGenerator.nextInt(10000);
+        values.put(COLUMN_ID, randID);
+        values.put(COLUMN_USERNAME, U.getUsername());
+        values.put(COLUMN_PASSWORD, U.getPassword());
 
-            SQLiteDatabase db = this.getWritableDatabase();
-            db.insert(TABLE_CREDENTIALS, null, values);
-            db.close();
+        SQLiteDatabase db = this.getWritableDatabase();
+        db.insert(TABLE_CREDENTIALS, null, values);
+        db.close();
     }
 
     public User findUser(String name, int ID) {
@@ -160,22 +167,23 @@ public class MyDBHandler extends SQLiteOpenHelper{
         return result;
     }
 
-    public void addEvent(Event e) {
 
-            ContentValues values = new ContentValues();
-            values.put(COLUMN_EVENTID, e.getID());
-            values.put(COLUMN_LOCATION, e.getLocation().toString());
-            values.put(COLUMN_TIME, e.getTime());
-            values.put(COLUMN_OWNER, e.getOwnerID());
+    //BEGIN INDIVIDUAL USER EVENTS
 
-            SQLiteDatabase db = this.getWritableDatabase();
+    public void addEventToUser(Event e, int UserID) {
+        ContentValues values = new ContentValues();
+        values.put(COLUMN_EVENTID, e.getID());
+        values.put(COLUMN_LOCATION, e.getLocation().toString());
+        values.put(COLUMN_TIME, e.getTime());
+        values.put(COLUMN_OWNER, e.getOwnerID());
 
-            db.insert(TABLE_EVENTS, null, values);
-            db.close();
+        SQLiteDatabase db = this.getWritableDatabase();
 
+        db.insert(TABLE_USER_EVENTS + UserID, null, values);
+        db.close();
     }
-    public Event findEvent(String location, int ID) {
-        String query = "Select * FROM " + TABLE_EVENTS + " WHERE " + COLUMN_EVENTID + " =  \"" + ID
+    public Event findEventInGroup(String location, int ID, int UserID) {
+        String query = "Select * FROM " + TABLE_USER_EVENTS + UserID + " WHERE " + COLUMN_EVENTID + " =  \"" + ID
                 + "\"" + " OR " + COLUMN_LOCATION + " =  \"" +  location + "\"";
 
         SQLiteDatabase db = this.getWritableDatabase();
@@ -195,9 +203,8 @@ public class MyDBHandler extends SQLiteOpenHelper{
         db.close();
         return e;
     }
-
-    public int getNumEvents(){
-        String query = "Select * FROM " + TABLE_EVENTS;
+    public int getNumEventsInGroup(int UserID){
+        String query = "Select * FROM " + TABLE_USER_EVENTS + UserID;
         SQLiteDatabase db = this.getWritableDatabase();
         Cursor cursor = db.rawQuery(query, null);
         int Cursize = cursor.getCount();
@@ -205,9 +212,8 @@ public class MyDBHandler extends SQLiteOpenHelper{
         db.close();
         return Cursize;
     }
-
-    public Event[] getEvents(){
-        String query = "Select * FROM " + TABLE_EVENTS;
+    public Event[] getEventsFromGroup(int UserID){
+        String query = "Select * FROM " + TABLE_USER_EVENTS + UserID;
         SQLiteDatabase db = this.getWritableDatabase();
         Cursor cursor = db.rawQuery(query, null);
         int Cursize = cursor.getCount();
@@ -225,16 +231,15 @@ public class MyDBHandler extends SQLiteOpenHelper{
         db.close();
         return events;
     }
-
-    public boolean removeEvent(Event e){
+    public boolean removeEventFromGroup(Event e, int UserID){
         boolean result = false;
-        String query = "Select * FROM " + TABLE_EVENTS + " WHERE " + COLUMN_LOCATION +
+        String query = "Select * FROM " + TABLE_USER_EVENTS + UserID + " WHERE " + COLUMN_LOCATION +
                 " =  \"" + e.getLocation().toString() + "\"" + " OR " + COLUMN_EVENTID + " =  \"" +  e.getID() + "\"";
         SQLiteDatabase db = this.getWritableDatabase();
         Cursor cursor = db.rawQuery(query, null);
 
         if (cursor.moveToFirst()) {
-            db.delete(TABLE_EVENTS, COLUMN_EVENTID + " = ?",
+            db.delete(TABLE_USER_EVENTS + UserID, COLUMN_EVENTID + " = ?",
                     new String[] { String.valueOf(Integer.parseInt(cursor.getString(0)))});
             cursor.close();
             result = true;
@@ -242,9 +247,9 @@ public class MyDBHandler extends SQLiteOpenHelper{
         db.close();
         return result;
     }
-    public boolean removeEvents(){
+    public boolean removeEventsFromGroup(int UserID ){
         boolean result = false;
-        String query = "Select * FROM " + TABLE_EVENTS;
+        String query = "Select * FROM " + TABLE_USER_EVENTS + UserID;
         SQLiteDatabase db = this.getWritableDatabase();
         Cursor cursor = db.rawQuery(query, null);
         int Cursize = cursor.getCount();
@@ -252,7 +257,7 @@ public class MyDBHandler extends SQLiteOpenHelper{
 
         for (int i = 0; i<Cursize; i++){
             cursor.moveToPosition(i);
-            db.delete(TABLE_EVENTS, COLUMN_EVENTID + " = ?",
+            db.delete(TABLE_USER_EVENTS + UserID, COLUMN_EVENTID + " = ?",
                     new String[]{String.valueOf(Integer.parseInt(cursor.getString(0)))});
             result = true;
         }
@@ -262,27 +267,6 @@ public class MyDBHandler extends SQLiteOpenHelper{
     }
 
 
-    public User validate(String Username,String Password) {
-
-            String query = "Select * FROM " + TABLE_CREDENTIALS + " WHERE " + COLUMN_USERNAME +
-                    " =  \"" + Username + "\"" + " AND " + COLUMN_PASSWORD + " = \"" + Password + "\"";
-            SQLiteDatabase db = this.getWritableDatabase();
-            Cursor cursor = db.rawQuery(query, null);
-            User user = new User();
-
-            if (cursor.moveToFirst()) {
-                cursor.moveToFirst();
-                user.setID(Integer.parseInt(cursor.getString(0)));
-                user.setUsername(cursor.getString(1));
-                user.setPassword(cursor.getString(2));
-                cursor.close();
-            } else {
-                user = null;
-            }
-            db.close();
-            return user;
-
-    }
 
 
 }

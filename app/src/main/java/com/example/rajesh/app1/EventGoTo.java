@@ -38,25 +38,36 @@ public class EventGoTo extends AppCompatActivity {
             TextView textView = new TextView(this);
             textView.setTextSize(40);
             textView.setText(message);
-        
-            RelativeLayout layout = (RelativeLayout) findViewById(R.id.content);
+            RelativeLayout layout = (RelativeLayout) findViewById(R.id.GoToEventLayout);
             layout.addView(textView);
+
     }
 
 
-    /**
-     * Created by Rajesh on 12/23/2015.
-     */
-    public static class SpinnerActivity extends Activity implements AdapterView.OnItemSelectedListener {
-
-        public void onItemSelected(AdapterView<?> parent, View view,
-                                   int pos, long id) {
-            // An item was selected. You can retrieve the selected item using
-            parent.getItemAtPosition(pos);
-        }
-
-        public void onNothingSelected(AdapterView<?> parent) {
-            // Another interface callback
-        }
+    public void onStop() {
+        super.onStop();
     }
+
+
+    @Override
+    public void onPause() {
+        super.onPause();
+    }
+
+
+    @Override
+    public void onResume() {
+        super.onResume();
+    }
+
+    public void onBackPressed(){
+        super.onBackPressed();
+        cleanHouse();
+        System.exit(0);
+    }
+
+    public void cleanHouse(){
+
+    }
+
 }

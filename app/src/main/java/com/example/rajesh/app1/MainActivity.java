@@ -45,8 +45,6 @@ public class MainActivity extends AppCompatActivity {
         usernameField = (EditText)findViewById(R.id.editText1);
         passwordField = (EditText)findViewById(R.id.editText2);
 
-
-
     }
 
     @Override
@@ -56,8 +54,8 @@ public class MainActivity extends AppCompatActivity {
         return true;
     }
 
-    @Override
-    public boolean onOptionsItemSelected(MenuItem item) {
+  /*   @Override
+   public boolean onOptionsItemSelected(MenuItem item) {
         // Handle action bar item clicks here. The action bar will
         // automatically handle clicks on the Home/Up button, so long
         // as you specify a parent activity in AndroidManifest.xml.
@@ -69,7 +67,7 @@ public class MainActivity extends AppCompatActivity {
         }
 
         return super.onOptionsItemSelected(item);
-    }
+    } */
 
 
 
@@ -78,18 +76,16 @@ public class MainActivity extends AppCompatActivity {
     public void login(View view){
         String username = usernameField.getText().toString();
         String password = passwordField.getText().toString();
-        //method.setText("Post Method");
-        //new SigninActivity(this,status,role,1).execute(username, password);
 
 
-        MyDBHandler dbHandler = new MyDBHandler(this, null, null, 1);
+        UserDBHandler dbHandler = new UserDBHandler(this, null, null, 1);
         User user = dbHandler.validate(username, password);
 
         if (user != null) {
             Intent intent = new Intent(this, Dashboard.class);
-            String message = Integer.toString(user.getID());
-            intent.putExtra(EXTRA_MESSAGE, message);
+            ((myApp) this.getApplication()).setUSER_ID(user.getID()); //set USER_ID
             startActivity(intent);
+
         } else {
 
             String message = "Invalid Login Credentials";
@@ -98,19 +94,19 @@ public class MainActivity extends AppCompatActivity {
     }
 
     public void register(View view){
+        //TODO: Prevent double registering.
         String username = usernameField.getText().toString();
         String password = passwordField.getText().toString();
-        MyDBHandler dbHandler = new MyDBHandler(this, null, null, 1);
+        UserDBHandler dbHandler = new UserDBHandler(this, null, null, 1);
 
 
 
         User user =
-                new User(username,password,(int)(Math.random()*10000));
+                new User(username,password);
 
         dbHandler.addUser(user);
 
     }
-
 
 
 }
