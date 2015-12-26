@@ -11,37 +11,36 @@
     app:layout_behavior="@string/appbar_scrolling_view_behavior"
     tools:context="com.example.rajesh.app1.NewEvent"
     tools:showIn="@layout/activity_new_event">
-
+<!--
     <LinearLayout
         android:orientation="vertical"
         android:layout_width="355dp"
         android:layout_height="fill_parent"
         android:layout_alignParentTop="true"
         android:layout_centerHorizontal="true"
-        android:weightSum="1">
+        android:weightSum="1">   -->
 
         <Spinner
             android:id="@+id/spinner1"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
             android:background="@android:drawable/btn_dropdown"
-            android:spinnerMode="dropdown" />
+            android:spinnerMode="dropdown"
+            android:layout_alignParentTop="true"
+            android:layout_alignParentLeft="true"
+            android:layout_alignParentStart="true" />
 
-        <TimePicker
-            android:layout_width="match_parent"
-            android:layout_height="99dp"
-            android:id="@+id/timePicker"
-            android:layout_gravity="center_horizontal" />
-
-        <EditText
+    <EditText
             android:id="@+id/editTextDescrip"
             android:layout_width="match_parent"
             android:hint="Description:"
-            android:layout_height="0dp"
+            android:layout_height="100dp"
             android:inputType="text"
-            android:layout_marginTop="5dp"
-            android:ems="10"
-            android:layout_weight="0.34">
+
+        android:layout_below="@+id/timePicker"
+        android:layout_alignParentLeft="true"
+        android:layout_alignParentStart="true"
+        android:layout_marginTop="85dp">
         </EditText>
 
         <Button
@@ -49,10 +48,35 @@
             android:layout_height="wrap_content"
             android:text="@string/Create"
             android:id="@+id/createButton"
-            android:onClick="create"
+            android:onClick="sendEventTo"
             android:layout_gravity="center_horizontal"
-            android:clickable="true" />
+            android:clickable="true"
+            android:layout_marginTop="39dp"
+            android:layout_below="@+id/editTextDescrip"
+            android:layout_centerHorizontal="true" />
 
-    </LinearLayout>
+    <TimePicker
+        android:layout_width="207dp"
+        android:layout_height="99dp"
+        android:id="@+id/timePicker"
+        android:layout_gravity="center_horizontal"
+        android:layout_below="@+id/spinner1"
+        android:layout_alignParentLeft="true"
+        android:layout_alignParentStart="true"
+        android:layout_alignRight="@+id/spinner1"
+        android:layout_alignEnd="@+id/spinner1" />
+
+    <DatePicker
+        android:layout_width="wrap_content"
+        android:layout_height="94dp"
+        android:id="@+id/datePicker"
+        android:layout_gravity="center_horizontal"
+        android:spinnersShown="true"
+        android:layout_below="@+id/timePicker"
+        android:layout_alignParentRight="true"
+        android:layout_alignParentLeft="true"
+        android:layout_alignParentStart="true" />
+
+    <!-- </LinearLayout> -->
 
 </RelativeLayout>

@@ -4,6 +4,7 @@ package com.example.rajesh.app1;
 
 
 import android.content.Intent;
+import android.database.sqlite.SQLiteDatabase;
 import android.os.Bundle;
 import android.support.design.widget.FloatingActionButton;
 import android.support.design.widget.Snackbar;
@@ -54,7 +55,7 @@ public class MainActivity extends AppCompatActivity {
         return true;
     }
 
-  /*   @Override
+     @Override
    public boolean onOptionsItemSelected(MenuItem item) {
         // Handle action bar item clicks here. The action bar will
         // automatically handle clicks on the Home/Up button, so long
@@ -67,7 +68,7 @@ public class MainActivity extends AppCompatActivity {
         }
 
         return super.onOptionsItemSelected(item);
-    } */
+    }
 
 
 
@@ -78,7 +79,7 @@ public class MainActivity extends AppCompatActivity {
         String password = passwordField.getText().toString();
 
 
-        UserDBHandler dbHandler = new UserDBHandler(this, null, null, 1);
+        MyDBHandler dbHandler = new MyDBHandler(this, null, null, 1);
         User user = dbHandler.validate(username, password);
 
         if (user != null) {
@@ -97,16 +98,19 @@ public class MainActivity extends AppCompatActivity {
         //TODO: Prevent double registering.
         String username = usernameField.getText().toString();
         String password = passwordField.getText().toString();
-        UserDBHandler dbHandler = new UserDBHandler(this, null, null, 1);
-
-
+        MyDBHandler dbHandler = new MyDBHandler(this, null, null, 1);
+        Random r = new Random();
 
         User user =
-                new User(username,password);
-
+                new User(username,password,r.nextInt(10000));
         dbHandler.addUser(user);
+        dbHandler.createUserTable(user.getID());
 
     }
 
 
+
+
 }
+
+

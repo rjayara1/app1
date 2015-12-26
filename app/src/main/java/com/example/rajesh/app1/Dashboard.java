@@ -33,17 +33,10 @@ public class Dashboard extends AppCompatActivity {
         Toolbar toolbar = (Toolbar) findViewById(R.id.toolbar);
         setSupportActionBar(toolbar);
 
-        FloatingActionButton fab = (FloatingActionButton) findViewById(R.id.fab);
-        fab.setOnClickListener(new View.OnClickListener() {
-            @Override
-            public void onClick(View view) {
-                Snackbar.make(view, "Replace with your own action", Snackbar.LENGTH_LONG)
-                        .setAction("Action", null).show();
-            }
-        });
+
         Intent intent = getIntent();
 
-       debugPrintUsers(); //TODO: remove, this is for viewing all registered users.
+//       debugPrintUsers(); //TODO: remove, this is for viewing all registered users.
        refreshEvents();
     }
 
@@ -53,7 +46,7 @@ public class Dashboard extends AppCompatActivity {
 
 
 
-            Event[] events = dbHandler.getEvents();
+            Event[] events = dbHandler.getEventsFromUser(((myApp) this.getApplication()).getUSER_ID());
             int numEvents = events.length;
         //TODO: figure out a way of doing this without sorting every time. Sorting every time is highly inefficient
              Arrays.sort(events);
@@ -92,6 +85,12 @@ public class Dashboard extends AppCompatActivity {
             dbHandler.removeEvents();
             onResume();
         }
+    public void goToFriendsPage(View v){
+        //TODO: Make friends page, fill out this method accordingly
+        Intent intent = new Intent(this, FriendsActivity.class);
+        startActivity(intent);
+
+    }
 
     public void gotoEvent(View v){
         Intent intent = new Intent(this, EventGoTo.class);
@@ -136,6 +135,7 @@ public class Dashboard extends AppCompatActivity {
     public void gotoGroups(View v){
         Intent intent = new Intent(this, GroupActivity.class);
         startActivity(intent);
+
     }
 
 

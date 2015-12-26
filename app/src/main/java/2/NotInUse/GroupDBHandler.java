@@ -1,4 +1,4 @@
-package com.example.rajesh.app1;
+package NotInUse;
 
 import android.content.ContentValues;
 import android.content.Context;
@@ -12,7 +12,7 @@ import objs.Location;
 
 
 public class GroupDBHandler extends SQLiteOpenHelper {
-    private static final int DATABASE_VERSION = 3; //TODO: figure out DB versions
+    private static final int DATABASE_VERSION = 2; //TODO: figure out DB versions
     private static final String DATABASE_NAME = "AppDB.db";
     public int numGroups;
 
@@ -45,8 +45,8 @@ public class GroupDBHandler extends SQLiteOpenHelper {
                 + COLUMN_GROUPID + " INTEGER PRIMARY KEY," + COLUMN_GROUPNAME
                 + " TEXT," + COLUMN_MEMBERS + " TEXT" + ")";
         db.execSQL(CREATE_GROUPS_TABLE);
-        Group[] groups = this.getGroups();
 
+        Group[] groups = this.getGroups();
         for (int i = 0; i <groups.length; i++){
             if (groups[i]!= null) {
                 String CREATE_GROUP_EVENTS_TABLE = "CREATE TABLE " +

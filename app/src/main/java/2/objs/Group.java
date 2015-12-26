@@ -11,14 +11,20 @@ public class Group implements Comparable<Group>{
 
     String name, description;
     int GroupID;
+    //NOTE: Group.Members is a string of USER ID's representing the User Members of the group
+    //Distinct ID's are seperated by colons, EX:
+    //12345678:098765432:12131415:99998888  ... ect
     String Members;
+    String Owner;
 
 
 
-    public Group(String name, int GroupID, String Members){
+    public Group(String name, String description, int GroupID, String Members){
         this.name = name;
         this.GroupID = GroupID;
         this.Members = Members;
+        this.description = description;
+
 
     }
     public Group(){
@@ -27,6 +33,13 @@ public class Group implements Comparable<Group>{
         Members = "";
     }
 
+    public String getOwner() {
+        return Owner;
+    }
+
+    public void setOwner(String owner) {
+        Owner = owner;
+    }
 
     public int getGroupID() {
         return GroupID;

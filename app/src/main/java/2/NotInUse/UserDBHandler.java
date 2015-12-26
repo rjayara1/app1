@@ -1,4 +1,4 @@
-package com.example.rajesh.app1;
+package NotInUse;
 
 import android.content.ContentValues;
 import android.database.sqlite.SQLiteOpenHelper;
@@ -54,9 +54,8 @@ public class UserDBHandler extends SQLiteOpenHelper {
                 + " TEXT," + COLUMN_PASSWORD + " TEXT" + ")";
         db.execSQL(CREATE_CREDENTIALS_TABLE);
 
+
         User[] users = this.getUsers();
-
-
         for (int i = 0; i <users.length; i++){
             if (users[i]!= null) {
                 String CREATE_USER_EVENTS_TABLE = "CREATE TABLE " +
@@ -182,7 +181,7 @@ public class UserDBHandler extends SQLiteOpenHelper {
         db.insert(TABLE_USER_EVENTS + UserID, null, values);
         db.close();
     }
-    public Event findEventInGroup(String location, int ID, int UserID) {
+    public Event findEventInUser(String location, int ID, int UserID) {
         String query = "Select * FROM " + TABLE_USER_EVENTS + UserID + " WHERE " + COLUMN_EVENTID + " =  \"" + ID
                 + "\"" + " OR " + COLUMN_LOCATION + " =  \"" +  location + "\"";
 
@@ -203,7 +202,7 @@ public class UserDBHandler extends SQLiteOpenHelper {
         db.close();
         return e;
     }
-    public int getNumEventsInGroup(int UserID){
+    public int getNumEventsInUser(int UserID){
         String query = "Select * FROM " + TABLE_USER_EVENTS + UserID;
         SQLiteDatabase db = this.getWritableDatabase();
         Cursor cursor = db.rawQuery(query, null);
@@ -212,7 +211,7 @@ public class UserDBHandler extends SQLiteOpenHelper {
         db.close();
         return Cursize;
     }
-    public Event[] getEventsFromGroup(int UserID){
+    public Event[] getEventsFromUser(int UserID){
         String query = "Select * FROM " + TABLE_USER_EVENTS + UserID;
         SQLiteDatabase db = this.getWritableDatabase();
         Cursor cursor = db.rawQuery(query, null);
@@ -231,7 +230,7 @@ public class UserDBHandler extends SQLiteOpenHelper {
         db.close();
         return events;
     }
-    public boolean removeEventFromGroup(Event e, int UserID){
+    public boolean removeEventFromUser(Event e, int UserID){
         boolean result = false;
         String query = "Select * FROM " + TABLE_USER_EVENTS + UserID + " WHERE " + COLUMN_LOCATION +
                 " =  \"" + e.getLocation().toString() + "\"" + " OR " + COLUMN_EVENTID + " =  \"" +  e.getID() + "\"";
@@ -247,7 +246,7 @@ public class UserDBHandler extends SQLiteOpenHelper {
         db.close();
         return result;
     }
-    public boolean removeEventsFromGroup(int UserID ){
+    public boolean removeEventsFromUser(int UserID ){
         boolean result = false;
         String query = "Select * FROM " + TABLE_USER_EVENTS + UserID;
         SQLiteDatabase db = this.getWritableDatabase();

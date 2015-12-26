@@ -100,14 +100,21 @@ public class Event implements Comparable<Event>{
     public int compareTo(Event y){
        String[] yTime = y.getTime().split(":");
         String[] xTime = this.getTime().split(":");
-        String[] ytime = yTime[1].split("\\s");
-        String[] xtime = xTime[1].split("\\s");
+        String[] yTime2 = yTime[1].split("\\s");
+        String[] xTime2 = xTime[1].split("\\s");
         int yHour = Integer.parseInt(yTime[0]);
-        int yMin = Integer.parseInt(ytime[0]);
-        String yAMPM = ytime[1];
+        int yMin = Integer.parseInt(yTime2[0]);
+        String yAMPM = yTime2[1];
+        String[] yMMDD = yTime2[2].split("/");
+        int yMM = Integer.parseInt(yMMDD[0]);
+        int yDD = Integer.parseInt(yMMDD[1]);
+
         int xHour = Integer.parseInt(xTime[0]);
-        int xMin = Integer.parseInt(xtime[0]);
-        String xAMPM = xtime[1];
+        int xMin = Integer.parseInt(xTime2[0]);
+        String xAMPM = xTime2[1];
+        String[] xMMDD = xTime2[2].split("/");
+        int xMM = Integer.parseInt(xMMDD[0]);
+        int xDD = Integer.parseInt(xMMDD[1]);
 
         if (yAMPM.equals("PM")){
             if (yHour < 12){
@@ -131,7 +138,15 @@ public class Event implements Comparable<Event>{
         }
         int xTotalMinutes = xHour*60 + xMin;
         int yTotalMinutes = yHour*60 + yMin;
-        return (xTotalMinutes - yTotalMinutes);
+
+        Calendar cx = Calendar.getInstance();
+        Calendar cy = Calendar.getInstance();
+        Calendar cal = Calendar.getInstance();
+        int year= cal.get(Calendar.YEAR);
+        cx.set(year,xMM,xDD,xHour,xMin);
+        cy.set(year,yMM,yDD,yHour,yMin);
+
+        return cx.compareTo(cy);
 
 
     }

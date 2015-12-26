@@ -13,14 +13,17 @@ import android.view.View;
 import android.widget.AdapterView;
 import android.widget.ArrayAdapter;
 import android.widget.Button;
+import android.widget.DatePicker;
 import android.widget.EditText;
 import android.widget.Spinner;
 import android.widget.TimePicker;
 
 import java.text.DateFormat;
 import java.text.SimpleDateFormat;
+import java.util.Calendar;
 import java.util.Date;
 import java.util.Locale;
+import java.util.Random;
 
 import objs.Event;
 import objs.Location;
@@ -31,6 +34,7 @@ public class NewEvent extends AppCompatActivity {
     EditText mEdit;
     Spinner mSpinner;
     TimePicker mTime;
+    DatePicker mDate;
     //public int USER_ID = 0;
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -39,14 +43,7 @@ public class NewEvent extends AppCompatActivity {
         Toolbar toolbar = (Toolbar) findViewById(R.id.toolbar);
         setSupportActionBar(toolbar);
 
-        FloatingActionButton fab = (FloatingActionButton) findViewById(R.id.fab);
-        fab.setOnClickListener(new View.OnClickListener() {
-            @Override
-            public void onClick(View view) {
-                Snackbar.make(view, "Replace with your own action", Snackbar.LENGTH_LONG)
-                        .setAction("Action", null).show();
-            }
-        });
+
         getSupportActionBar().setDisplayHomeAsUpEnabled(true);
 
         Intent intent = getIntent();
@@ -61,10 +58,23 @@ public class NewEvent extends AppCompatActivity {
         mSpinner.setAdapter(adapter);
         mButton = (Button)findViewById(R.id.createButton);
         mEdit   = (EditText)findViewById(R.id.editTextDescrip);
+        mDate = (DatePicker) findViewById(R.id.datePicker);
+        mDate.setCalendarViewShown(false);
+        mTime = (TimePicker) findViewById(R.id.timePicker);
+        Calendar cal=Calendar.getInstance();
+        int year=cal.get(Calendar.YEAR);
+        int month=cal.get(Calendar.MONTH);
+        int day=cal.get(Calendar.DAY_OF_MONTH);
+        int hour=cal.get(Calendar.HOUR_OF_DAY);
+        int min=cal.get(Calendar.MINUTE);
+
+        mDate.updateDate(year, month, day);
+        mTime.setCurrentHour(hour);
+        mTime.setCurrentMinute(min);
 
     }
 
-    public void create(View v){
+    public void sendEventTo(View v){
 
         Intent intent = new Intent(this, Dashboard.class);
 
@@ -74,8 +84,9 @@ public class NewEvent extends AppCompatActivity {
         mSpinner.clearFocus();
         String LOC = mSpinner.getSelectedItem().toString();
         mTime = (TimePicker) findViewById(R.id.timePicker);
-
-
+        int month =  mDate.getMonth();
+        int day = mDate.getDayOfMonth();
+        String MMDD = month + "/" + day;
         int hour = mTime.getCurrentHour();
         int min = mTime.getCurrentMinute();
         String AMPM = "";
@@ -100,18 +111,20 @@ public class NewEvent extends AppCompatActivity {
         if (min<10){
             zeros2 = "0";
         }
-        String time = zeros1 + "" + hour + ":" + zeros2 + "" +min + " " + AMPM;
+        String time =zeros1 + "" + hour + ":" + zeros2 + "" + min + " " + AMPM + " " + MMDD;
 
         MyDBHandler dbHandler = new MyDBHandler(this, null, null, 2);
 
         Location loc = new Location(LOC,DESCRIPTION);
+        Random r = new Random();
+
         Event e  =
-                new Event(loc, DESCRIPTION, time, (int)(Math.random()*10000.0), ((myApp) this.getApplication()).getUSER_ID());
+                new Event(loc, DESCRIPTION, time, r.nextInt(100000), ((myApp) this.getApplication()).getUSER_ID());
 
         dbHandler.addEvent(e);
+        dbHandler.addEventToUser(e, ((myApp) this.getApplication()).getUSER_ID());
 
-        startActivity(intent);
-
+                startActivity(intent);
 
     }
 
