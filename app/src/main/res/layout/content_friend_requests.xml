@@ -11,10 +11,10 @@
         android:layout_height="wrap_content"
         xmlns:app="http://schemas.android.com/apk/res-auto"
         xmlns:tools="http://schemas.android.com/tools"
-        tools:context=".SendEventTo"
+        tools:context=".FriendRequests"
         app:layout_behavior="@string/appbar_scrolling_view_behavior"
-        tools:showIn="@layout/activity_send_event_to"
-        android:id="@+id/RelSendEventLayout">
+        tools:showIn="@layout/activity_friend_requests"
+        android:id="@+id/RelRequestsLayout">
 
         <LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
             xmlns:app="http://schemas.android.com/apk/res-auto"
@@ -24,10 +24,10 @@
             android:layout_height="wrap_content"
             android:gravity="top"
             app:layout_behavior="@string/appbar_scrolling_view_behavior"
-            tools:context=".SendEventTo"
-            tools:showIn="@layout/activity_send_event_to"
+            tools:context=".FriendRequests"
+            tools:showIn="@layout/activity_friend_requests"
             android:weightSum="1"
-            android:id="@+id/SendEventLayout"
+            android:id="@+id/FriendRequestsLayout"
             android:clickable="true">
 
 
@@ -35,14 +35,6 @@
 
         </LinearLayout>
 
-        <Button
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
-            android:text="Send!"
-            android:id="@+id/SendOutButton"
-            android:onClick="sendOutEvents"
-            android:layout_alignParentBottom="true"
-            android:layout_centerHorizontal="true" />
 
 
     </RelativeLayout>

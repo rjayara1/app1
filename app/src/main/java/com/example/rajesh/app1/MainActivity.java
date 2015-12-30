@@ -94,18 +94,24 @@ public class MainActivity extends AppCompatActivity {
         }
     }
 
-    public void register(View view){
-        //TODO: Prevent double registering.
+    public void register(View view) {
+
         String username = usernameField.getText().toString();
         String password = passwordField.getText().toString();
         MyDBHandler dbHandler = new MyDBHandler(this, null, null, 1);
         Random r = new Random();
+        User U = dbHandler.findUser(username,-1);
+        if (U ==null) {
 
         User user =
-                new User(username,password,r.nextInt(10000));
+                new User(username, password, r.nextInt(90000) + 10000);
         dbHandler.addUser(user);
         dbHandler.createUserTable(user.getID());
+    }
+        else{
+            //TODO: ERROR: CANNOT REGISTER USERNAME ALREADY EXISTS
 
+        }
     }
 
 

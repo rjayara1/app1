@@ -31,36 +31,43 @@ public class AddFriends extends AppCompatActivity {
         IDButton = (Button) findViewById(R.id.Add_By_ID);
     }
 
+    //ADDS A NEW FRIEND REUQEST TO USER U'S FRIEND REQUEST LIST
+    //TO BE APPROVED BY USER U, AND THEN ADDED TO BOTH U'S AND CALLING USER'S
+    //RESPECTIVE FRIEND LISTS
+
     public void addFriendByID(View v){
         EditTextID = (EditText) findViewById(R.id.ADD_FRIEND_BY_ID_EDIT_TEXT);
         int ID = Integer.parseInt(EditTextID.getText().toString());
         MyDBHandler mDB = new MyDBHandler(this,null,null,2);
         User U = mDB.findUser("",ID);
-
-        String  str = U.getFriendRequests();
-        //ADDS A NEW FRIEND REUQEST TO USER U'S FRIEND REQUEST LIST
-        //TO BE APPROVED BY USER U, AND THEN ADDED TO BOTH U'S AND CALLING USER'S
-        //RESPECTIVE FRIEND LISTS
-
-        mDB.addFriendRequestToUser(((myApp) this.getApplication()).getUSER_ID(), U.getID());
-        //TODO: FINISH THIS METHOD -- NEED TO FINISH METHODS IN MYDB FIRST
+        if (U!=null) {
+            mDB.addFriendRequestToUser(((myApp) this.getApplication()).getUSER_ID(), U.getID());
+            EditTextID.setText("");
+           //TODO: REQUEST SENT MESSAGE
+            mDB.close();
+        }
+        else{
+            //TODO: ERROR MESSAGE, ID DOES NOT EXIST
+            mDB.close();
+        }
 
     }
 
     public void addFriendByUsername(View v){
         EditTextUser= (EditText) findViewById(R.id.ADD_FRIEND_BY_USERNAME_EDIT_TEXT);
-        String Username = EditTextID.getText().toString();
+        String Username = EditTextUser.getText().toString();
         MyDBHandler mDB = new MyDBHandler(this,null,null,2);
         User U = mDB.findUser(Username,-1);
 
-        String  str = U.getFriendRequests();
-        //ADDS A NEW FRIEND REUQEST TO USER U'S FRIEND REQUEST LIST
-        //TO BE APPROVED BY USER U, AND THEN ADDED TO BOTH U'S AND CALLING USER'S
-        //RESPECTIVE FRIEND LISTS
+        if (U!=null) {
+            mDB.addFriendRequestToUser(((myApp) this.getApplication()).getUSER_ID(), U.getID());
+            EditTextUser.setText("");
 
-        mDB.addFriendRequestToUser(((myApp) this.getApplication()).getUSER_ID(), U.getID());
-        //TODO: FINISH THIS METHOD -- NEED TO FINISH METHODS IN MYDB FIRST
+        }
+        else{
+            //TODO: ERROR MESSAGE, ID DOES NOT EXIST
 
+        }
     }
 
 }

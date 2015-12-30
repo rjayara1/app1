@@ -7,6 +7,7 @@ import android.support.design.widget.FloatingActionButton;
 import android.support.design.widget.Snackbar;
 import android.support.v7.app.AppCompatActivity;
 import android.support.v7.widget.Toolbar;
+import android.util.Log;
 import android.view.View;
 import android.widget.Button;
 import android.widget.LinearLayout;
@@ -28,12 +29,17 @@ public class GroupActivity extends AppCompatActivity {
         getSupportActionBar().setDisplayHomeAsUpEnabled(true);
         Button goHome = (Button) findViewById(R.id.GoHome);
 
-    //refreshGroups();
+        refreshGroups();
 
     }
 
     public void refreshGroups(){
+
+
         MyDBHandler dbHandler = new MyDBHandler(this, null, null, 2);
+
+        //TODO: find a more efficent way of getting these groups
+
         Group[] groups = dbHandler.getGroupsWithUser(((myApp) this.getApplication()).getUSER_ID());
         int numGroups = groups.length;
         for (int i = 0;i<numGroups; i++){
@@ -52,6 +58,7 @@ public class GroupActivity extends AppCompatActivity {
                 }
                 final String message = buttonText;
                 final int GroupID = groups[i].getGroupID();
+          //      Log.d("Group: ", buttonText +"");
                 b.setText(buttonText);
                 LinearLayout layout = (LinearLayout) findViewById(R.id.GroupLayout);
                 b.setLayoutParams(new LinearLayout.LayoutParams(
@@ -71,12 +78,17 @@ public class GroupActivity extends AppCompatActivity {
             }
         }
     }
+/*
+    public void onRestart(){
+        super.onRestart();
+        setContentView(R.layout.activity_group);
+        refreshGroups();
 
-
+    }
     public void onResume(){
         super.onResume();
         refreshGroups();
-    }
+    }*/
     public void createGroup(View v){
         Intent i = new Intent(this, CreateGroupPage.class);
         startActivity(i);

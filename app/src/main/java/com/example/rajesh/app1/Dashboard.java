@@ -32,6 +32,7 @@ public class Dashboard extends AppCompatActivity {
         setContentView(R.layout.activity_dashboard);
         Toolbar toolbar = (Toolbar) findViewById(R.id.toolbar);
         setSupportActionBar(toolbar);
+        getSupportActionBar().setDisplayHomeAsUpEnabled(true);
 
 
         Intent intent = getIntent();
@@ -43,9 +44,6 @@ public class Dashboard extends AppCompatActivity {
     public void refreshEvents() {
         MyDBHandler dbHandler = new MyDBHandler(this, null, null, 2);
         //TODO: change so that we only update if the number of events is greater than before
-
-
-
             Event[] events = dbHandler.getEventsFromUser(((myApp) this.getApplication()).getUSER_ID());
             int numEvents = events.length;
         //TODO: figure out a way of doing this without sorting every time. Sorting every time is highly inefficient
@@ -86,7 +84,7 @@ public class Dashboard extends AppCompatActivity {
             onResume();
         }
     public void goToFriendsPage(View v){
-        //TODO: Make friends page, fill out this method accordingly
+
         Intent intent = new Intent(this, FriendsActivity.class);
         startActivity(intent);
 

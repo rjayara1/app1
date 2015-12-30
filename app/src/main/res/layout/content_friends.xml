@@ -15,7 +15,7 @@
     <ListView
         android:layout_width="wrap_content"
         android:layout_height="380dp"
-        android:id="@+id/listView"
+        android:id="@+id/FriendsListView"
         android:layout_alignParentLeft="true"
         android:layout_alignParentStart="true"
         android:layout_alignParentTop="true"

@@ -29,9 +29,6 @@ import objs.User;
  * Created by Rajesh on 12/22/2015.
  */
 public class MyDBHandler extends SQLiteOpenHelper{
-        //TODO: Change creation of individual user Tables to when they register.  Same for
-        //Groups on creation.
-
 
    // private static final
     private static final int DATABASE_VERSION = 3;//1;
@@ -61,9 +58,12 @@ public class MyDBHandler extends SQLiteOpenHelper{
 
     //Info for Individual User Event Tables
     private static final String TABLE_USER_EVENTS = "UserEvents";
-
+    private static final String COLUMN_ISLOCATION = "_locationid";
+    private static final String COLUMN_LOCATIONNAME = "_locationname";
+    private static final String COLUMN_LOCATIONDESCRIPTION = "_locationdescription";
     //Info for Individual Group Event Tables
     private static final String TABLE_GROUP_EVENTS= "GroupsEvents";
+    public static final String COLUMN_LOCATIONEVENTID ="_locationeventid";
 
 
     public MyDBHandler(Context context, String name,
@@ -257,21 +257,40 @@ public class MyDBHandler extends SQLiteOpenHelper{
     /*******************************************************************************************
      **************************** BEGIN FRIEND METHODS******************************************
      *******************************************************************************************/
+
+
     public void addFriendRequestToUser(int RequestingUserID, int TargetUserID) {
+
+            User source = findUser("",RequestingUserID);
             User target = findUser("", TargetUserID);
             String curRequests = target.getFriendRequests();
             String newRequests = curRequests + RequestingUserID + ":";
-        String query = "UPDATE " + TABLE_CREDENTIALS + " SET " + COLUMN_FRIEND_REQUESTS + "= \"" + newRequests + "\""
-                + " WHERE " + COLUMN_ID + " = \"" + TargetUserID + "\"";
+            String check = "SELECT * FROM " + TABLE_CREDENTIALS + " WHERE " + COLUMN_ID + " = \"" + TargetUserID + "\"" +
+                " AND " + COLUMN_FRIEND_REQUESTS + " LIKE " + "\"%" + source.getID() + "%\"";
 
         SQLiteDatabase db = this.getWritableDatabase();
-        db.execSQL(query);
+            Cursor c = db.rawQuery(check, null);
+        if (!c.moveToFirst()) {
+            String query = "UPDATE " + TABLE_CREDENTIALS + " SET " + COLUMN_FRIEND_REQUESTS + "= \"" + newRequests + "\""
+                    + " WHERE " + COLUMN_ID + " = \"" + TargetUserID + "\"";
+
+            db.execSQL(query);
+        }
+        c.close();
         db.close();
     }
 
     public void removeFriendRequestFromUser(int requestID, int TargetUserID){
-        //TODO:
 
+        User target = findUser("", TargetUserID);
+        String curRequests = target.getFriendRequests();
+        String newRequests = curRequests.replace(requestID + ":", "");
+
+        String query = "UPDATE " + TABLE_CREDENTIALS + " SET " + COLUMN_FRIEND_REQUESTS + "= \"" + newRequests + "\""
+                + " WHERE " + COLUMN_ID + " = \"" + TargetUserID + "\"";
+        SQLiteDatabase db = this.getWritableDatabase();
+        db.execSQL(query);
+        db.close();
     }
 
     public void addFriendToUsers(int ID1, int ID2){
@@ -279,14 +298,45 @@ public class MyDBHandler extends SQLiteOpenHelper{
         User user2 = findUser("", ID2);
         String friends1 = user1.getFriends();
         String friends2 = user2.getFriends();
-       //TODO: FINISH THIS METHOD, IT IS INCOMPLETE!!
+        friends1 += ID2 + ":";
+        friends2 += ID1 + ":";
+        SQLiteDatabase db = this.getWritableDatabase();
+        String check = "SELECT * FROM " + TABLE_CREDENTIALS + " WHERE " + COLUMN_ID + " = \"" + user1.getID() + "\"" +
+                " AND " + COLUMN_FRIENDS + " LIKE " + "\"%" + user2.getID() + "%\"";
+        Cursor c = db.rawQuery(check, null);
 
+        if (!c.moveToFirst()) {
 
+            String query1 = "UPDATE " + TABLE_CREDENTIALS + " SET " + COLUMN_FRIENDS + "= \"" + friends1 + "\""
+                    + " WHERE " + COLUMN_ID + " = \"" + ID1 + "\"";
+
+            String query2 = "UPDATE " + TABLE_CREDENTIALS + " SET " + COLUMN_FRIENDS + "= \"" + friends2 + "\""
+                    + " WHERE " + COLUMN_ID + " = \"" + ID2 + "\"";
+            db.execSQL(query1);
+            db.execSQL(query2);
+        }
+        db.close();
     }
 
     public void removeFriendsFromUsers(int ID1, int ID2){
-        //TODO:
+        User user1 = findUser("", ID1);
+        String curFriends1= user1.getFriends();
+        String newFriends1 = curFriends1.replace(ID2 + ":", "");
 
+        User user2 = findUser("", ID2);
+        String curFriends2= user2.getFriends();
+        String newFriends2 = curFriends2.replace(ID1 + ":", "");
+
+        String query1 = "UPDATE " + TABLE_CREDENTIALS + " SET " + COLUMN_FRIEND_REQUESTS + "= \"" + newFriends1 + "\""
+                + " WHERE " + COLUMN_ID + " = \"" + ID1 + "\"";
+
+        String query2 = "UPDATE " + TABLE_CREDENTIALS + " SET " + COLUMN_FRIEND_REQUESTS + "= \"" + newFriends2 + "\""
+                + " WHERE " + COLUMN_ID + " = \"" + ID2 + "\"";
+
+        SQLiteDatabase db = this.getWritableDatabase();
+        db.execSQL(query1);
+        db.execSQL(query2);
+        db.close();
     }
 
 
@@ -407,8 +457,9 @@ public class MyDBHandler extends SQLiteOpenHelper{
     public void createUserTable(int UserID){
         String CREATE_USER_EVENTS_TABLE = "CREATE TABLE IF NOT EXISTS " +
                 TABLE_USER_EVENTS  + UserID + "("
-                + COLUMN_EVENTID + " INTEGER PRIMARY KEY," + COLUMN_LOCATION
-                + " TEXT," + COLUMN_TIME + " TEXT," + COLUMN_OWNER + " Integer" + ")";
+                + COLUMN_LOCATIONEVENTID + " INTEGER PRIMARY KEY," + COLUMN_LOCATION
+                + " TEXT," + COLUMN_TIME + " TEXT," + COLUMN_OWNER + " Integer,"
+                + COLUMN_LOCATIONNAME + " TEXT," + COLUMN_LOCATIONDESCRIPTION + " TEXT," +  COLUMN_ISLOCATION + " Integer" + ")";
         SQLiteDatabase db = this.getWritableDatabase();
         db.execSQL(CREATE_USER_EVENTS_TABLE);
         Log.d("Executed", CREATE_USER_EVENTS_TABLE);
@@ -416,18 +467,32 @@ public class MyDBHandler extends SQLiteOpenHelper{
 
     public void addEventToUser(Event e, int UserID) {
         ContentValues values = new ContentValues();
-        values.put(COLUMN_EVENTID, e.getID());
+        values.put(COLUMN_LOCATIONEVENTID, e.getID());
         values.put(COLUMN_LOCATION, e.getLocation().toString());
         values.put(COLUMN_TIME, e.getTime());
         values.put(COLUMN_OWNER, e.getOwnerID());
+        values.put(COLUMN_ISLOCATION, -1);
 
         SQLiteDatabase db = this.getWritableDatabase();
 
         db.insert(TABLE_USER_EVENTS + UserID, null, values);
         db.close();
     }
+    public void addLocationToUser(Location L, int UserID){
+        ContentValues values = new ContentValues();
+        values.put(COLUMN_LOCATIONEVENTID, L.getID());
+        values.put(COLUMN_LOCATIONNAME, L.getLoc());
+        values.put(COLUMN_LOCATIONDESCRIPTION, L.getDescription());
+        values.put(COLUMN_ISLOCATION, 1);
+
+        SQLiteDatabase db = this.getWritableDatabase();
+
+        db.insert(TABLE_USER_EVENTS + UserID, null, values);
+        db.close();
+    }
+
     public Event findEventInUser(String location, int ID, int UserID) {
-        String query = "Select * FROM " + TABLE_USER_EVENTS + UserID + " WHERE " + COLUMN_EVENTID + " =  \"" + ID
+        String query = "Select * FROM " + TABLE_USER_EVENTS + UserID + " WHERE " + COLUMN_LOCATIONEVENTID + " =  \"" + ID
                 + "\"" + " OR " + COLUMN_LOCATION + " =  \"" +  location + "\"";
 
         SQLiteDatabase db = this.getWritableDatabase();
@@ -447,8 +512,29 @@ public class MyDBHandler extends SQLiteOpenHelper{
         db.close();
         return e;
     }
+    public Location findLocationsInUser(String location, int UserID) {
+        String query = "Select * FROM " + TABLE_USER_EVENTS + UserID + " WHERE " + COLUMN_ISLOCATION + " >  " + 0
+                + "" + " AND " + COLUMN_LOCATIONNAME + " =  \"" +  location + "\"";
+
+        SQLiteDatabase db = this.getWritableDatabase();
+        Cursor cursor = db.rawQuery(query, null);
+        Location l = new Location();
+
+        if (cursor.moveToFirst()) {
+            cursor.moveToFirst();
+            l.setID(Integer.parseInt(cursor.getString(0)));
+            l.setLoc(cursor.getString(4));
+            l.setDescription(cursor.getString(5));
+            cursor.close();
+        } else {
+            l = null;
+        }
+        db.close();
+        return l;
+    }
+
     public int getNumEventsInUser(int UserID){
-        String query = "Select * FROM " + TABLE_USER_EVENTS + UserID;
+        String query = "Select * FROM " + TABLE_USER_EVENTS + UserID + " WHERE " + COLUMN_ISLOCATION + " <  " + 0;
         SQLiteDatabase db = this.getWritableDatabase();
         Cursor cursor = db.rawQuery(query, null);
         int Cursize = cursor.getCount();
@@ -457,7 +543,11 @@ public class MyDBHandler extends SQLiteOpenHelper{
         return Cursize;
     }
     public Event[] getEventsFromUser(int UserID){
-        String query = "Select * FROM " + TABLE_USER_EVENTS + UserID;
+        String query = "Select * FROM " + TABLE_USER_EVENTS + UserID + " WHERE " + COLUMN_ISLOCATION +
+        " <  " + 0 + "";
+
+         //NOTE, IN SOME VERSIONS OF SQL NOT EQUAL IS WRITTEN  !+ AND NOT <>
+
         SQLiteDatabase db = this.getWritableDatabase();
         Cursor cursor = db.rawQuery(query, null);
         int Cursize = cursor.getCount();
@@ -475,15 +565,56 @@ public class MyDBHandler extends SQLiteOpenHelper{
         db.close();
         return events;
     }
+    public Location[] getLocationsFromUser(int UserID){
+        String query = "Select * FROM " + TABLE_USER_EVENTS + UserID + " WHERE " + COLUMN_ISLOCATION +
+                " >  " + 0 + "";
+
+        //NOTE, IN SOME VERSIONS OF SQL NOT EQUAL IS WRITTEN  !+ AND NOT <>
+
+        SQLiteDatabase db = this.getWritableDatabase();
+        Cursor cursor = db.rawQuery(query, null);
+        int Cursize = cursor.getCount();
+        Log.d("numLocations is !!!!!: ", Cursize + "");
+        Location[] locations= new Location[Cursize];
+
+        for (int i = 0; i<Cursize; i++){
+            cursor.moveToPosition(i);
+            locations[i] = new Location(Integer.parseInt(cursor.getString(0)),cursor.getString(4),cursor.getString(5));
+          //  locations[i].setID(Integer.parseInt(cursor.getString(4)));
+          //  locations[i].setLoc(cursor.getString(5));
+          //  locations[i].setDescription(cursor.getString(6));
+
+        }
+        cursor.close();
+        db.close();
+        return locations;
+    }
     public boolean removeEventFromUser(Event e, int UserID){
         boolean result = false;
         String query = "Select * FROM " + TABLE_USER_EVENTS + UserID + " WHERE " + COLUMN_LOCATION +
-                " =  \"" + e.getLocation().toString() + "\"" + " OR " + COLUMN_EVENTID + " =  \"" +  e.getID() + "\"";
+                " =  \"" + e.getLocation().toString() + "\"" + " OR " + COLUMN_LOCATIONEVENTID + " =  \"" +  e.getID() + "\"";
         SQLiteDatabase db = this.getWritableDatabase();
         Cursor cursor = db.rawQuery(query, null);
 
         if (cursor.moveToFirst()) {
-            db.delete(TABLE_USER_EVENTS + UserID, COLUMN_EVENTID + " = ?",
+            db.delete(TABLE_USER_EVENTS + UserID, COLUMN_LOCATIONEVENTID + " = ?",
+                    new String[] { String.valueOf(Integer.parseInt(cursor.getString(0)))});
+            cursor.close();
+            result = true;
+        }
+        db.close();
+        return result;
+    }
+
+    public boolean removeLocationFromUser(Location L, int UserID){
+        boolean result = false;
+        String query = "Select * FROM " + TABLE_USER_EVENTS + UserID + " WHERE " + COLUMN_LOCATIONNAME +
+                " =  \"" + L.getLoc() + "\"" + " OR " + COLUMN_LOCATIONEVENTID + " =  \"" +  L.getID() + "\"";
+        SQLiteDatabase db = this.getWritableDatabase();
+        Cursor cursor = db.rawQuery(query, null);
+
+        if (cursor.moveToFirst()) {
+            db.delete(TABLE_USER_EVENTS + UserID, COLUMN_LOCATIONEVENTID + " = ?",
                     new String[] { String.valueOf(Integer.parseInt(cursor.getString(0)))});
             cursor.close();
             result = true;
@@ -493,7 +624,8 @@ public class MyDBHandler extends SQLiteOpenHelper{
     }
     public boolean removeEventsFromUser(int UserID ){
         boolean result = false;
-        String query = "Select * FROM " + TABLE_USER_EVENTS + UserID;
+        String query = "Select * FROM " + TABLE_USER_EVENTS + UserID + " WHERE " + COLUMN_ISLOCATION +
+                " <  " + 0;;
         SQLiteDatabase db = this.getWritableDatabase();
         Cursor cursor = db.rawQuery(query, null);
         int Cursize = cursor.getCount();
@@ -501,7 +633,7 @@ public class MyDBHandler extends SQLiteOpenHelper{
 
         for (int i = 0; i<Cursize; i++){
             cursor.moveToPosition(i);
-            db.delete(TABLE_USER_EVENTS + UserID, COLUMN_EVENTID + " = ?",
+            db.delete(TABLE_USER_EVENTS + UserID, COLUMN_LOCATIONEVENTID + " = ?",
                     new String[]{String.valueOf(Integer.parseInt(cursor.getString(0)))});
             result = true;
         }
@@ -593,7 +725,8 @@ public class MyDBHandler extends SQLiteOpenHelper{
     }
 
     public Group[] getGroupsWithUser(int UserID){
-        String query = "Select * FROM " + TABLE_GROUPS + " WHERE " + COLUMN_MEMBERS + " LIKE " + "\"%" + UserID + "%\"";
+        String query = "Select DISTINCT " + COLUMN_ID + "," + COLUMN_GROUPNAME + "," + COLUMN_MEMBERS +
+                " FROM " + TABLE_GROUPS + " WHERE " + COLUMN_MEMBERS + " LIKE " + "\"%" + UserID + "%\"";
         SQLiteDatabase db = this.getWritableDatabase();
         Cursor cursor = db.rawQuery(query, null);
         int Cursize = cursor.getCount();
@@ -604,6 +737,8 @@ public class MyDBHandler extends SQLiteOpenHelper{
             groups[i] = new Group();
             groups[i].setGroupID((Integer.parseInt(cursor.getString(0))));
             groups[i].setName(cursor.getString(1));
+            Log.d("Group: ", groups[i].getName());
+            Log.d("ID: ", groups[i].getGroupID() + "");
             groups[i].setMembers(cursor.getString(2));
         }
         cursor.close();
@@ -636,6 +771,18 @@ public class MyDBHandler extends SQLiteOpenHelper{
         db.execSQL(query);
         db.close();
     }
+
+    public void removeUserFromGroup(int UserID, int GroupID){
+        String curMembers = getMembersFromGroup(GroupID);
+        String newMembers = curMembers.replace(UserID + ":", "");
+
+        String query = "UPDATE " + TABLE_GROUPS + " SET " + COLUMN_MEMBERS + "= \"" + newMembers + "\""
+                + " WHERE " + COLUMN_ID + " = \"" + GroupID + "\"";
+        SQLiteDatabase db = this.getWritableDatabase();
+        db.execSQL(query);
+        db.close();
+    }
+
 
     public void addEventToGroup(Event e, int GroupID) {
         ContentValues values = new ContentValues();

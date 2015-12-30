@@ -118,5 +118,12 @@
         "when a user tries to pick up one of cards.\n\n"
     </string>
     <string name="title_activity_add_friends">AddFriends</string>
+    <string name="title_activity_friend_requests">FriendRequests</string>
+    <string name="title_activity_sent_event_to">SentEventTo</string>
+    <string name="title_activity_new_location">NewLocation</string>
+    <string name="title_activity_navigation">NavigationActivity</string>
+
+    <string name="navigation_drawer_open">Open navigation drawer</string>
+    <string name="navigation_drawer_close">Close navigation drawer</string>
 
 </resources>

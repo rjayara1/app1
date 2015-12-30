@@ -18,9 +18,8 @@
         android:layout_height="wrap_content"
         android:text="@string/Add_Members"
         android:id="@+id/Add_Member"
-        android:layout_marginBottom="106dp"
         android:onClick="addNewGroupMembers"
-        android:layout_alignParentBottom="true"
+        android:layout_alignTop="@+id/TextUserID"
         android:layout_alignParentRight="true"
         android:layout_alignParentEnd="true" />
 
@@ -30,9 +29,29 @@
         android:id="@+id/TextUserID"
         android:hint="User ID"
         android:inputType="number"
-        android:layout_alignBottom="@+id/Add_Member"
+        android:layout_alignParentTop="true"
         android:layout_alignParentLeft="true"
         android:layout_alignParentStart="true"
         android:layout_toLeftOf="@+id/Add_Member"
         android:layout_toStartOf="@+id/Add_Member" />
+
+    <Button
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:text="Leave Group"
+        android:id="@+id/LeaveGroupButton"
+        android:onClick="leaveGroup"
+        android:layout_marginBottom="42dp"
+        android:layout_alignParentBottom="true"
+        android:layout_alignParentLeft="true"
+        android:layout_alignParentStart="true" />
+
+    <ListView
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:id="@+id/RequestslistView"
+        android:layout_below="@+id/TextUserID"
+        android:layout_alignParentLeft="true"
+        android:layout_alignParentStart="true"
+        android:layout_above="@+id/LeaveGroupButton" />
 </RelativeLayout>

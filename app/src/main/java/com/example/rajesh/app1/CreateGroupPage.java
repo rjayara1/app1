@@ -39,10 +39,11 @@ public class CreateGroupPage extends AppCompatActivity {
         Group g = new Group(name,Description,r.nextInt(100000), ((myApp) this.getApplication()).getUSER_ID() + ":");
         MyDBHandler db = new MyDBHandler(this,null,null,2);
         db.addGroup(g);
-        db.createGroupTable(g.getGroupID());
-
+        //db.createGroupTable(g.getGroupID());
+        db.close();
         Intent intent = new Intent(this, GroupActivity.class);
         startActivity(intent);
+
     }
 
 }
